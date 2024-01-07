@@ -69,6 +69,8 @@ def generate_rotated_random_number(font_size_range=(50, 150)):
     return rotated_text_image, (x_center, y_center, width, height, angle), number
 
 
+
+
 def overlay_rotated_numbers_on_background(background, num_numbers=3):
     """Overlay rotated random numbers on the background and return the image and annotations."""
     bg_copy = background.copy()
@@ -77,16 +79,26 @@ def overlay_rotated_numbers_on_background(background, num_numbers=3):
     for _ in range(num_numbers):
         text_image, (x_center, y_center, width, height, angle), number = generate_rotated_random_number()
 
-        # Position the text randomly
-        x = random.randint(0, WIDTH - width)
-        y = random.randint(0, HEIGHT - height)
+        # Position the text randomly with margins
+        x = random.randint(20, WIDTH - width - 20)
+        y = random.randint(20, HEIGHT - height - 20)
+
+        # Check for collision with existing numbers
+        collision = any(check_collision((x, y, x + width, y + height), existing_box) for existing_box in annotations)
+        if collision:
+            continue  # Skip this number and try a new one
 
         bg_copy.paste(text_image, (x, y), text_image)
-
         annotations.append((number, x + x_center, y + y_center, width, height, angle))
 
     return bg_copy, annotations
 
+def check_collision(box1, box2):
+    # Ensure that all values are numeric
+    box1 = [float(coord) for coord in box1]
+    box2 = [float(coord) for coord in box2]
+
+    return not (box1[2] < box2[0] or box1[0] > box2[2] or box1[3] < box2[1] or box1[1] > box2[3])
 
 
 def rotated_rect_coordinates(x_center, y_center, width, height, angle):
