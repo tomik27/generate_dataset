@@ -7,9 +7,9 @@ from PIL import ImageDraw
 from PIL import ImageFont
 from matplotlib import pyplot as plt, patches
 
-WIDTH = 500
-HEIGHT = 500
-SAVE_DIR = r"X:\skolicka\diplomka\data\generate_datesets"
+WIDTH = 640
+HEIGHT = 640
+SAVE_DIR = r"X:\skolicka\diplomka\data\generate_datasets"
 
 
 def generate_polygon():
@@ -179,15 +179,18 @@ if __name__ == '__main__':
 
         # Save the annotations as a JSON file
         # Save the annotations in the desired format
-        annotations_file_path = os.path.join(SAVE_DIR, f"image_{i + 1}_annotations.txt")
+        annotations_file_path = os.path.join(SAVE_DIR, f"image_{i + 1}.txt")
         with open(annotations_file_path, 'w') as f:
             for ann in annotations:
                 number, x_center, y_center, width, height, angle = ann
-                x_center /= WIDTH
-                y_center /= HEIGHT
-                width /= WIDTH
-                height /= HEIGHT
-                angle = angle/360
+                # Normalizace souřadnic a omezení na rozsah [0, 1]
+                x_center = min(max(x_center / WIDTH, 0), 1)
+                y_center = min(max(y_center / HEIGHT, 0), 1)
+                width = min(max(width / WIDTH, 0), 1)
+                height = min(max(height / HEIGHT, 0), 1)
+
+                # Přepsání hodnoty úhlu
+                angle = angle / 360
                 line = f"{number} {x_center} {y_center} {width} {height} {angle}\n"
                 f.write(line)
 
